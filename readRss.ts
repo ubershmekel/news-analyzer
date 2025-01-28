@@ -1,4 +1,5 @@
 import Parser from "rss-parser";
+import fs from "fs";
 
 type CustomFeed = { foo: string };
 type CustomItem = { bar: number };
@@ -15,12 +16,17 @@ const feeds = [
 
 const parser: Parser<CustomFeed, CustomItem> = new Parser();
 
-(async () => {
+async function main() {
   //   const feed = await parser.parseURL("https://www.reddit.com/.rss");
   const feed = await parser.parseURL(feeds[0].url);
   console.log(feed.title); // feed will have a `foo` property, type as a string
+  // save a json copy of the feed to a file
+  fs.writeFileSync("./feed.json", JSON.stringify(feed));
+
   console.log(feed.items.length);
   feed.items.forEach((item) => {
     console.log(item.title + ":" + item.link); // item will have a `bar` property type as a number
   });
-})();
+}
+
+main();
