@@ -1,0 +1,16 @@
+{
+  "name": "news-analyzer",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "readRss": "tsx readRss.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "rss-parser": "^3.13.0",
+    "tsx": "^4.19.2"
+  }
+}
