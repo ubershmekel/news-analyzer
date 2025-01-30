@@ -8,6 +8,10 @@ export async function insertStory(story: typeof storiesTable.$inferInsert) {
   return await db.insert(storiesTable).values(story);
 }
 
+export async function getStories() {
+  return await db.select().from(storiesTable);
+}
+
 async function main() {
   //   const story: typeof storiesTable.$inferInsert = {
   //     title: "Hello, World!",

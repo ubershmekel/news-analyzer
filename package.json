@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "summarizer": "tsx summarizer.ts",
     "readRss": "tsx readRss.ts",
     "pushDb": "drizzle-kit push",
-    "db": "tsx db.ts"
+    "db": "tsx db.ts",
+    "ai": "tsx ai.ts"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +15,7 @@
   "dependencies": {
     "@libsql/client": "^0.14.0",
     "drizzle-orm": "^0.39.0",
+    "openai": "^4.80.1",
     "rss-parser": "^3.13.0"
   },
   "devDependencies": {
