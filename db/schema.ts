@@ -8,3 +8,10 @@ export const storiesTable = sqliteTable("stories", {
   publishDate: int({ mode: "timestamp" }).notNull(),
   crawlDate: int({ mode: "timestamp" }).notNull(),
 });
+
+export const dailySummariesTable = sqliteTable("daily_summaries", {
+  id: int().primaryKey({ autoIncrement: true }),
+  title: text().notNull(),
+  urlIds: text().notNull(),
+  publishDate: int({ mode: "timestamp" }).notNull(),
+});
