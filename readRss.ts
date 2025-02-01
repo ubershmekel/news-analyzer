@@ -36,15 +36,16 @@ const parser: Parser<CustomFeed, CustomItem> = new Parser();
 
 async function main() {
   //   const feed = await parser.parseURL("https://www.reddit.com/.rss");
+  let totalItems = 0;
   for (const feed of feeds) {
     const feedXml = await parser.parseURL(feed.url);
-    console.log(feedXml.title); // feed will have a `foo` property, type as a string
     // save a json copy of the feed to a file
     // fs.writeFileSync("./feed.json", JSON.stringify(feed));
 
-    console.log(feedXml.items.length);
+    console.log(`${feedXml.title} ${feedXml.items.length} items`);
+    totalItems += feedXml.items.length;
     feedXml.items.forEach((item) => {
-      console.log(item.title + ":" + item.link); // item will have a `bar` property type as a number
+      // console.log(item.title + ": " + item.link); // item will have a `bar` property type as a number
       insertStory({
         title: item.title as string,
         url: item.link as string,
@@ -54,6 +55,7 @@ async function main() {
       });
     });
   }
+  console.log(`Total items: ${totalItems}`);
 }
 
 if (require.main === module) {

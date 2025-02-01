@@ -1,8 +1,10 @@
 import { promises as fs } from "fs";
 import { ask } from "./ai";
 import {
-  getDailySummaries,
+  getAllDailySummaries,
+  getDailySummariesFromDates,
   getFirstStoryDate,
+  getLastStoryDate,
   getLinkIdsToUrls,
   getStories,
   getStoriesFromDate,
@@ -10,7 +12,7 @@ import {
 } from "./db";
 import { storiesTable } from "./db/schema";
 
-const bigPrompt = `Please summarize the top 5 stories from the following list.
+const summarizeOneDayPrompt = `Please summarize the top 5 stories from the following list.
 You will output 5 lines.
 Each output line will be the most important, unique, impactful, or interesting story that you can summarize from the input list.
 Make sure the lines have no overlap, are not repetitive or redundant.
@@ -21,14 +23,36 @@ Add at the end of each output line a list of up to 10 relevant story IDs separat
 The input list is as follows:
 `;
 
+const summarizeDailySummariesPrompt = `Please summarize the top 5 stories from the following list.
+Each input line starts with the publish date, followed by the story title.
+Each input line ends with a list of up to 10 relevant story IDs separated by commas in parenthesis like (4, 15, 97) or (10, 29, 35, 421, 507)
+You will output 5 lines.
+Each output line will be the most important, unique, impactful, or interesting story that you can summarize from the input list.
+If a story appeared on multiple days, then it's probably important.
+Each output line should be a rephrased summary, especially if the story appeared on multiple days.
+Each output line should NOT be "summary: full title" instead just write the title as a sentence.
+Each output line should start with the title, do not start with a numbering.
+Each output line should end with a list of up to 10 relevant story IDs separated by commas in parenthesis like (4, 15, 97) or (10, 29, 35, 421, 507)
+Each output line should have no overlap with others, and not be repetitive or redundant.
+Do not use any markdown or special characters in the output lines.
+
+The input lines are:
+`;
+
 const exampleAnswer = `1) Israel and Hamas reach a significant deal to release hostages and facilitate Palestinian return to Gaza, showcasing a thaw in tensions. (5, 251, 223)
 2) Belarus' President Lukashenko extends his rule following disputed elections criticized by the opposition and EU. (2, 236, 204)
 3) 13 UN peacekeepers and soldiers die as M23 rebels gain ground in Congo, highlighting ongoing instability in the region. (6, 240, 118)
 4) Palestinians return to northern Gaza, illustrating shifts in territorial access amid cease-fire negotiations with Israel. (4, 238, 144)
 `;
 
+const exampleMultiDaySummary = `Hamas Releases and Trades Hostages with Israel Amidst Ceasefire: Hamas releases four female hostages as part of a ceasefire deal with Israel, while Israel frees 200 Palestinian prisoners in a simultaneous exchange, highlighting ongoing tensions and negotiations in the region. (17,223,218,222,225)
+Quebec's Religious Symbols Ban Faces Supreme Court Challenge: A legal battle looms as Quebec's prohibition on wearing religious symbols is set to be tested at the Supreme Court, potentially impacting freedom of expression and religious rights in Canada. (226)
+China's DeepSeek AI Disrupts Tech Sector: China's AI application DeepSeek is shaking up the industry and challenging America's tech dominance, raising concerns in the markets. (77,112,153,189,433,141,142,154,155,360)
+Maha Kumbh Festival Tragedy: At least 30 people died in a stampede during India’s Maha Kumbh festival, raising safety concerns. (452,558,607,673,680,718,868)
+DC Plane Crash: A midair collision involving an American Airlines jet and a military helicopter near Washington, resulting in 67 fatalities, underscores aviation safety concerns. (692,719,730,738,766,819,842)`;
+
 function promptifyStories(stories: (typeof storiesTable.$inferSelect)[]) {
-  const storyLines: string[] = [bigPrompt];
+  const storyLines: string[] = [summarizeOneDayPrompt];
   for (const story of stories) {
     storyLines.push(`${story.id}) ${story.title}`);
   }
@@ -53,7 +77,7 @@ function splitStoryIds(line: string) {
   };
   const match = line.match(/\(([\s0-9,]*?)\)/);
   if (match) {
-    res.ids = match[1].split(", ");
+    res.ids = match[1].split(",").map((id) => id.trim());
     const lineNoIds = line.replace(match[0], "");
     const cleanLine = lineNoIds.replace(/^\d+\)\s+/, "").trim();
     res.lineNoIds = cleanLine;
@@ -98,55 +122,65 @@ async function linkify(answer: string) {
 
 async function summarizeDates() {
   // get first story date
-  const startDate = await getFirstStoryDate();
+  // const startDate = await getFirstStoryDate();
+  const lastDate = await getLastStoryDate();
   // iterate over days since startDate
   //   const startDate = "2025-01-29";
 
   let i = -1;
   while (true) {
     i += 1;
-    const when = new Date(startDate);
+    const when = new Date(lastDate);
     when.setDate(when.getDate() + i);
-    const stories = await getStoriesFromDate(new Date(when));
-    if (stories.length === 0) {
-      console.log(`No stories from ${when}`);
+    const result = await summarizeDay(when);
+    if (!result) {
       break;
     }
-    if (stories.length <= 10) {
-      console.log(`Stories from ${when}: ${stories.length} so skipping`);
-      continue;
-    }
-    console.log(`Stories from ${when}: ${stories.length}`);
-    const textQuestion = promptifyStories(stories);
-    console.log(`Asking: ${textQuestion.length} character long question`);
-    const result = await ask(textQuestion);
-    const resText = result.message.content;
-    if (!resText) {
-      console.error(`No response from AI for ${when}`);
-      continue;
-    }
-    console.log(resText);
-    for (const line of resText.split("\n")) {
-      const { lineNoIds, ids } = splitStoryIds(line);
-      if (lineNoIds.length === 0) {
-        console.log(`Skipping empty line`);
-        continue;
-      }
-
-      await insertDailySummary({
-        publishDate: when,
-        title: lineNoIds,
-        urlIds: ids.join(","),
-      });
-    }
-    // console.log(stories[0]);
-    // console.log(stories[1]);
-    // console.log(stories[2]);
   }
 }
 
+// summarizeDay returns `false` if this day had no stories
+async function summarizeDay(when: Date): Promise<boolean> {
+  const stories = await getStoriesFromDate(when);
+  if (stories.length === 0) {
+    console.log(`No stories from ${when}`);
+    return false;
+  }
+  if (stories.length <= 10) {
+    console.log(`Stories from ${when}: ${stories.length} so skipping`);
+    return true;
+  }
+  console.log(`Stories from ${when}: ${stories.length}`);
+  const textQuestion = promptifyStories(stories);
+  console.log(`Asking: ${textQuestion.length} character long question`);
+  const result = await ask(textQuestion);
+  const resText = result.message.content;
+  if (!resText) {
+    console.error(`No response from AI for ${when}`);
+    return true;
+  }
+  console.log(resText);
+  for (const line of resText.split("\n")) {
+    const { lineNoIds, ids } = splitStoryIds(line);
+    if (lineNoIds.length === 0) {
+      console.log(`Skipping empty line`);
+      continue;
+    }
+
+    await insertDailySummary({
+      publishDate: when,
+      title: lineNoIds,
+      urlIds: ids.join(","),
+    });
+  }
+  // console.log(stories[0]);
+  // console.log(stories[1]);
+  // console.log(stories[2]);
+  return true;
+}
+
 async function markdownDailySummaries() {
-  const summaries = await getDailySummaries();
+  const summaries = await getAllDailySummaries();
   // console.log(summaries);
   const allLinkIds: number[] = [];
   for (const summary of summaries) {
@@ -181,10 +215,77 @@ async function summarizeAll() {
   console.log(linkedSummary);
 }
 
+async function summarizeMultipleDays() {
+  // const startDate = new Date("2025-01-25");
+  const startDate = await getFirstStoryDate();
+  const endDate = await getLastStoryDate();
+  console.log(`Summarizing from ${startDate} to ${endDate}`);
+  const summaries = await getDailySummariesFromDates(startDate, endDate);
+  const questionLines: string[] = [summarizeDailySummariesPrompt];
+  for (const summary of summaries) {
+    const formattedDate = summary.publishDate.toISOString().split("T")[0];
+    questionLines.push(`${formattedDate} ${summary.title} (${summary.urlIds})`);
+  }
+  const textQuestion = questionLines.join("\n");
+  console.log(`Asking: ${textQuestion.length} character long question`);
+  const result = await ask(textQuestion);
+  const answer = result.message.content;
+  if (!answer) {
+    console.error("No answer from AI");
+    throw new Error("No answer from AI");
+  }
+  // console.log(answer);
+  const multiDaySummaryText = await formatMultiDaySummary(answer);
+  console.log(multiDaySummaryText);
+  return multiDaySummaryText;
+}
+
+async function formatMultiDaySummary(answer: string) {
+  const allLinkIds: number[] = [];
+  const outLines: string[] = [];
+  for (const line of answer.split("\n")) {
+    const { lineNoIds, ids } = splitStoryIds(line);
+    if (lineNoIds.length === 0) {
+      console.log(`Skipping empty line`);
+      continue;
+    }
+    for (const id of ids) {
+      allLinkIds.push(parseInt(id));
+    }
+  }
+  const linkIdToUrl = await getLinkIdsToUrls(allLinkIds);
+
+  for (const line of answer.split("\n")) {
+    const { lineNoIds, ids } = splitStoryIds(line);
+    if (lineNoIds.length === 0) {
+      console.log(`Skipping empty line`);
+      continue;
+    }
+    const urlParts: string[] = [];
+    // const ids = summary.urlIds.split(",").map((id) => parseInt(id));
+    const seenUrls: Set<string> = new Set();
+    for (const id of ids) {
+      const url = linkIdToUrl[id];
+      if (seenUrls.has(url)) {
+        continue;
+      }
+      seenUrls.add(url);
+      urlParts.push(`[${id}](${url})`);
+    }
+    const urlSection = urlParts.join(", ");
+    const out = `* ${lineNoIds} (${urlSection})`;
+    // console.log(out);
+    outLines.push(out);
+  }
+  return outLines.join("\n");
+}
+
 async function main() {
-  await markdownDailySummaries();
+  // await markdownDailySummaries();
   //   await summarizeAll();
   // await summarizeDates();
+  await summarizeMultipleDays();
+  // await formatMultiDaySummary(exampleMultiDaySummary);
 }
 
 if (require.main === module) {
