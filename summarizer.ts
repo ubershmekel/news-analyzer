@@ -132,15 +132,23 @@ async function summarizeDates() {
     i += 1;
     const when = new Date(lastDate);
     when.setDate(when.getDate() + i);
-    const result = await summarizeDay(when);
+    const result = await generateDaySummary(when);
     if (!result) {
       break;
     }
   }
 }
 
-// summarizeDay returns `false` if this day had no stories
-async function summarizeDay(when: Date): Promise<boolean> {
+async function summarizeTodayAndYesterday() {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  await generateDaySummary(today);
+  await generateDaySummary(yesterday);
+}
+
+// generateDaySummary returns `false` if this day had no stories
+async function generateDaySummary(when: Date): Promise<boolean> {
   const stories = await getStoriesFromDate(when);
   if (stories.length === 0) {
     console.log(`No stories from ${when}`);
@@ -215,7 +223,7 @@ async function summarizeAll() {
   console.log(linkedSummary);
 }
 
-async function summarizeMultipleDays() {
+async function generateMultiDaySummary() {
   // const startDate = new Date("2025-01-25");
   const startDate = await getFirstStoryDate();
   const endDate = await getLastStoryDate();
@@ -284,7 +292,8 @@ async function main() {
   // await markdownDailySummaries();
   //   await summarizeAll();
   // await summarizeDates();
-  await summarizeMultipleDays();
+  await summarizeTodayAndYesterday();
+  await generateMultiDaySummary();
   // await formatMultiDaySummary(exampleMultiDaySummary);
 }
 

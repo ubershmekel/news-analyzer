@@ -7,7 +7,8 @@
     "readRss": "tsx readRss.ts",
     "pushDb": "drizzle-kit push",
     "db": "tsx db.ts",
-    "ai": "tsx ai.ts"
+    "ai": "tsx ai.ts",
+    "howManyStoriesPerDay": "tsx howManyStoriesPerDay.ts"
   },
   "author": "",
   "license": "ISC",

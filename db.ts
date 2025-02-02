@@ -87,6 +87,10 @@ export async function getStoriesFromDate(when: Date) {
     );
 }
 
+export function getDb() {
+  return db;
+}
+
 async function main() {
   //   const story: typeof storiesTable.$inferInsert = {
   //     title: "Hello, World!",
