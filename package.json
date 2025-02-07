@@ -8,7 +8,8 @@
     "pushDb": "drizzle-kit push",
     "db": "tsx db.ts",
     "ai": "tsx ai.ts",
-    "howManyStoriesPerDay": "tsx howManyStoriesPerDay.ts"
+    "howManyStoriesPerDay": "tsx howManyStoriesPerDay.ts",
+    "buildNews": "tsx buildNews.ts"
   },
   "author": "",
   "license": "ISC",

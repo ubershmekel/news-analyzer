@@ -187,8 +187,10 @@ async function generateDaySummary(when: Date): Promise<boolean> {
   return true;
 }
 
-async function markdownDailySummaries() {
-  const summaries = await getAllDailySummaries();
+async function markdownDailySummaries(startDate: Date, endDate: Date) {
+  // const summaries = await getAllDailySummaries();
+  const summaries = await getDailySummariesFromDates(startDate, endDate);
+
   // console.log(summaries);
   const allLinkIds: number[] = [];
   for (const summary of summaries) {
@@ -223,18 +225,20 @@ async function summarizeAll() {
   console.log(linkedSummary);
 }
 
-async function generateMultiDaySummary() {
-  // const startDate = new Date("2025-01-25");
-  const startDate = await getFirstStoryDate();
-  const endDate = await getLastStoryDate();
+async function generateMultiDaySummary(startDate: Date, endDate: Date) {
   console.log(`Summarizing from ${startDate} to ${endDate}`);
   const summaries = await getDailySummariesFromDates(startDate, endDate);
   const questionLines: string[] = [summarizeDailySummariesPrompt];
+  if (summaries.length === 0) {
+    console.log(`No summaries from ${startDate} to ${endDate}`);
+    throw new Error("No summaries");
+  }
   for (const summary of summaries) {
     const formattedDate = summary.publishDate.toISOString().split("T")[0];
     questionLines.push(`${formattedDate} ${summary.title} (${summary.urlIds})`);
   }
   const textQuestion = questionLines.join("\n");
+  console.log(`Summarizing ${summaries.length} summaries`);
   console.log(`Asking: ${textQuestion.length} character long question`);
   const result = await ask(textQuestion);
   const answer = result.message.content;
@@ -292,9 +296,19 @@ async function main() {
   // await markdownDailySummaries();
   //   await summarizeAll();
   // await summarizeDates();
-  await summarizeTodayAndYesterday();
-  await generateMultiDaySummary();
   // await formatMultiDaySummary(exampleMultiDaySummary);
+
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  // await generateMultiDaySummary(yesterday, now);
+  await markdownDailySummaries(yesterday, now);
+  // const startDate = new Date("2025-01-25");
+
+  // await summarizeTodayAndYesterday();
+  // const startDate = await getFirstStoryDate();
+  // const endDate = await getLastStoryDate();
+  // await generateMultiDaySummary(startDate, endDate);
 }
 
 if (require.main === module) {

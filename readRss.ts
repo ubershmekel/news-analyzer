@@ -34,8 +34,7 @@ const feeds = [
 
 const parser: Parser<CustomFeed, CustomItem> = new Parser();
 
-async function main() {
-  //   const feed = await parser.parseURL("https://www.reddit.com/.rss");
+export async function readRss() {
   let totalItems = 0;
   for (const feed of feeds) {
     const feedXml = await parser.parseURL(feed.url);
@@ -46,16 +45,31 @@ async function main() {
     totalItems += feedXml.items.length;
     feedXml.items.forEach((item) => {
       // console.log(item.title + ": " + item.link); // item will have a `bar` property type as a number
+      const pubDate = new Date(item.pubDate as string);
+      if (isNaN(pubDate.getTime())) {
+        console.error("Invalid date: " + item.pubDate);
+        return;
+      }
+      const now = new Date();
+      const oneDayMs = 1000 * 60 * 60 * 24;
+      if (now.getTime() - pubDate.getTime() > oneDayMs * 7) {
+        console.log("Skipping old story: " + item.title);
+      }
       insertStory({
         title: item.title as string,
         url: item.link as string,
         rssName: feed.name,
-        publishDate: new Date(item.pubDate as string),
+        publishDate: pubDate,
         crawlDate: new Date(),
       });
     });
   }
   console.log(`Total items: ${totalItems}`);
+}
+
+async function main() {
+  //   const feed = await parser.parseURL("https://www.reddit.com/.rss");
+  await readRss();
 }
 
 if (require.main === module) {

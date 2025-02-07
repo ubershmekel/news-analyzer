@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { dbFileName } from "./drizzle.config";
 import { dailySummariesTable, storiesTable } from "./db/schema";
-import { and, gte, lt, inArray, desc } from "drizzle-orm";
+import { and, gte, lt, inArray, desc, sql } from "drizzle-orm";
 
 const db = drizzle(dbFileName);
 
@@ -72,6 +72,28 @@ export async function getStories() {
   return await db.select().from(storiesTable);
 }
 
+export async function deleteDuplicateStories() {
+  // Delete the stories that are not the first time this
+  // URL showed up that CRAWL day.
+  // If news outlets repeat this article on another day then that is
+  // NOT deleted.
+  const delSql = sql`
+  DELETE FROM ${storiesTable}
+  WHERE ${storiesTable.id} NOT IN (
+    SELECT MIN(${storiesTable.id})
+    FROM ${storiesTable}
+    GROUP BY DATE(${storiesTable.crawlDate}, 'unixepoch'), ${storiesTable.url})
+  ;`;
+  // const delSql = sql`
+  // DELETE FROM stories
+  // WHERE stories.id NOT IN (
+  //   SELECT MIN(stories.id)
+  //   FROM stories
+  //   GROUP BY DATE(stories.crawlDate, 'unixepoch'), stories.url)
+  // ;`;
+  return db.run(delSql);
+}
+
 export async function getStoriesFromDate(when: Date) {
   const startOfDay = new Date(when.setHours(0, 0, 0, 0));
   const endOfDay = new Date(when.setHours(23, 59, 59, 999));
@@ -108,6 +130,7 @@ async function main() {
   console.log(stories[0]);
   console.log(stories[1]);
   console.log(stories[2]);
+  await deleteDuplicateStories();
 }
 
 if (require.main === module) {
