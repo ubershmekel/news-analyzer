@@ -139,7 +139,7 @@ async function summarizeDates() {
   }
 }
 
-async function summarizeTodayAndYesterday() {
+export async function generateDayTodayAndYesterday() {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
@@ -225,6 +225,95 @@ async function summarizeAll() {
   console.log(linkedSummary);
 }
 
+async function generateXDaysBackSummary(days: number) {
+  const now = new Date();
+  const startDate = new Date(now);
+  startDate.setDate(startDate.getDate() - days);
+  const endDate = new Date(now);
+  return await generateMultiDaySummary(startDate, endDate);
+}
+
+interface NewsLink {
+  id: number;
+  url: string;
+}
+
+interface NewsItem {
+  title: string;
+  links: NewsLink[];
+}
+
+interface SpanSummary {
+  daysBack: number;
+  name: string;
+  items: NewsItem[];
+}
+
+interface FrontPageSummaries {
+  createdAt: string;
+  summaries: SpanSummary[];
+}
+
+const summarySpans: SpanSummary[] = [
+  {
+    daysBack: 1,
+    name: "Today",
+    items: [],
+  },
+  {
+    daysBack: 3,
+    name: "3 days",
+    items: [],
+  },
+  {
+    daysBack: 7,
+    name: "7 days",
+    items: [],
+  },
+  {
+    daysBack: 14,
+    name: "14 days",
+    items: [],
+  },
+  {
+    daysBack: 30,
+    name: "30 days",
+    items: [],
+  },
+];
+
+export async function generateFrontPageSummaires() {
+  const out: FrontPageSummaries = {
+    createdAt: new Date().toISOString(),
+    summaries: [],
+  };
+  for (const span of summarySpans) {
+    const text = await generateXDaysBackSummary(span.daysBack);
+    const items: NewsItem[] = [];
+    for (const line of text.split("\n")) {
+      const parts = line.split(" (");
+      const title = parts[0];
+      const linkIds = parts[1]
+        .replace(")", "")
+        .split(", ")
+        .map((id) => parseInt(id));
+      const links: NewsLink[] = [];
+      for (const id of linkIds) {
+        const url = await getLinkIdsToUrls([id]);
+        links.push({ id, url: url[id] });
+      }
+      items.push({ title, links });
+    }
+    const newsSpan: SpanSummary = {
+      daysBack: span.daysBack,
+      name: span.name,
+      items,
+    };
+    out.summaries.push(newsSpan);
+  }
+  return out;
+}
+
 async function generateMultiDaySummary(startDate: Date, endDate: Date) {
   console.log(`Summarizing from ${startDate} to ${endDate}`);
   const summaries = await getDailySummariesFromDates(startDate, endDate);
@@ -250,6 +339,54 @@ async function generateMultiDaySummary(startDate: Date, endDate: Date) {
   const multiDaySummaryText = await formatMultiDaySummary(answer);
   console.log(multiDaySummaryText);
   return multiDaySummaryText;
+}
+
+async function parseMultiDaySummary(answer: string) {
+  const out: NewsItem[] = [];
+  const allLinkIds: number[] = [];
+  const outLines: string[] = [];
+  for (const line of answer.split("\n")) {
+    const { lineNoIds, ids } = splitStoryIds(line);
+    if (lineNoIds.length === 0) {
+      console.log(`Skipping empty line`);
+      continue;
+    }
+    for (const id of ids) {
+      allLinkIds.push(parseInt(id));
+    }
+  }
+  const linkIdToUrl = await getLinkIdsToUrls(allLinkIds);
+
+  for (const line of answer.split("\n")) {
+    const { lineNoIds, ids } = splitStoryIds(line);
+    if (lineNoIds.length === 0) {
+      console.log(`Skipping empty line`);
+      continue;
+    }
+    const urlParts: string[] = [];
+    // const ids = summary.urlIds.split(",").map((id) => parseInt(id));
+    const seenUrls: Set<string> = new Set();
+    for (const id of ids) {
+      const url = linkIdToUrl[id];
+      if (seenUrls.has(url)) {
+        continue;
+      }
+      seenUrls.add(url);
+      urlParts.push(`[${id}](${url})`);
+    }
+    const sortedUrls = [...ids].sort();
+    const newsItem: NewsItem = {
+      title: lineNoIds,
+      links: sortedUrls.map((id) => {
+        return { id: parseInt(id), url: linkIdToUrl[id], src: "" };
+      }),
+    };
+    const urlSection = urlParts.join(", ");
+    const out = `* ${lineNoIds} (${urlSection})`;
+    // console.log(out);
+    outLines.push(out);
+  }
+  return outLines.join("\n");
 }
 
 async function formatMultiDaySummary(answer: string) {

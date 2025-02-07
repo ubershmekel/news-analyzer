@@ -1,5 +1,4 @@
 import Parser from "rss-parser";
-import fs from "fs";
 import { insertStory } from "./db";
 
 type CustomFeed = { foo: string };
