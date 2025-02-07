@@ -14,11 +14,16 @@ const writeJsonFile = async (filePath: string, data: object): Promise<void> => {
 };
 
 async function main() {
+  console.log("readRss");
   await readRss();
+  console.log("deleteDuplicateStories");
   await deleteDuplicateStories();
+  console.log("generateDayTodayAndYesterday");
   await generateDayTodayAndYesterday();
+  console.log("generateFrontPageSummaires");
   const payload = await generateFrontPageSummaires();
   // save to json file
+  console.log("writeJsonFile");
   const outPath = "./data/news.json";
   await writeJsonFile(outPath, payload);
   // todo: upload new news to bucket

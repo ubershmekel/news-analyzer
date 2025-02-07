@@ -288,22 +288,8 @@ export async function generateFrontPageSummaires() {
     summaries: [],
   };
   for (const span of summarySpans) {
-    const text = await generateXDaysBackSummary(span.daysBack);
-    const items: NewsItem[] = [];
-    for (const line of text.split("\n")) {
-      const parts = line.split(" (");
-      const title = parts[0];
-      const linkIds = parts[1]
-        .replace(")", "")
-        .split(", ")
-        .map((id) => parseInt(id));
-      const links: NewsLink[] = [];
-      for (const id of linkIds) {
-        const url = await getLinkIdsToUrls([id]);
-        links.push({ id, url: url[id] });
-      }
-      items.push({ title, links });
-    }
+    console.log("Generating", span.name);
+    const items: NewsItem[] = await generateXDaysBackSummary(span.daysBack);
     const newsSpan: SpanSummary = {
       daysBack: span.daysBack,
       name: span.name,
@@ -336,15 +322,15 @@ async function generateMultiDaySummary(startDate: Date, endDate: Date) {
     throw new Error("No answer from AI");
   }
   // console.log(answer);
-  const multiDaySummaryText = await formatMultiDaySummary(answer);
-  console.log(multiDaySummaryText);
-  return multiDaySummaryText;
+  // // const multiDaySummaryText = await formatMultiDaySummary(answer);
+  // // console.log(multiDaySummaryText);
+  // return multiDaySummaryText;
+  return await parseMultiDaySummary(answer);
 }
 
 async function parseMultiDaySummary(answer: string) {
   const out: NewsItem[] = [];
   const allLinkIds: number[] = [];
-  const outLines: string[] = [];
   for (const line of answer.split("\n")) {
     const { lineNoIds, ids } = splitStoryIds(line);
     if (lineNoIds.length === 0) {
@@ -378,15 +364,16 @@ async function parseMultiDaySummary(answer: string) {
     const newsItem: NewsItem = {
       title: lineNoIds,
       links: sortedUrls.map((id) => {
-        return { id: parseInt(id), url: linkIdToUrl[id], src: "" };
+        const link: NewsLink = {
+          id: parseInt(id),
+          url: linkIdToUrl[id],
+        };
+        return link;
       }),
     };
-    const urlSection = urlParts.join(", ");
-    const out = `* ${lineNoIds} (${urlSection})`;
-    // console.log(out);
-    outLines.push(out);
+    out.push(newsItem);
   }
-  return outLines.join("\n");
+  return out;
 }
 
 async function formatMultiDaySummary(answer: string) {
