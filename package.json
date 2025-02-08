@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "summarizer": "tsx summarizer.ts",
-    "readRss": "tsx readRss.ts",
-    "pushDb": "drizzle-kit push",
-    "db": "tsx db.ts",
     "ai": "tsx ai.ts",
+    "buildNews": "tsx buildNews.ts",
+    "db": "tsx db.ts",
     "howManyStoriesPerDay": "tsx howManyStoriesPerDay.ts",
-    "buildNews": "tsx buildNews.ts"
+    "pushDb": "drizzle-kit push",
+    "readRss": "tsx readRss.ts",
+    "summarizer": "tsx summarizer.ts"
   },
   "author": "",
   "license": "ISC",
