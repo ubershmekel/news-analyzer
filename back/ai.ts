@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-import secrets from "../secrets.json";
+import secrets from "./secrets.json";
 
 const isDeepSeek = false;
 
