@@ -1,6 +1,11 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { dbFileName } from "./drizzle.config";
-import { dailySummariesTable, storiesTable } from "./db/schema";
+import {
+  cronRunsTable,
+  dailySummariesTable,
+  storiesTable,
+  summariesTable,
+} from "./db/schema";
 import { and, gte, lt, inArray, desc, sql } from "drizzle-orm";
 
 const db = drizzle(dbFileName);
@@ -58,6 +63,12 @@ export async function getDailySummariesFromDates(fromDate: Date, toDate: Date) {
     );
 }
 
+export async function insertSummary(
+  summary: typeof summariesTable.$inferInsert
+) {
+  return await db.insert(summariesTable).values(summary);
+}
+
 export async function insertDailySummary(
   summary: typeof dailySummariesTable.$inferInsert
 ) {
@@ -66,6 +77,21 @@ export async function insertDailySummary(
 
 export async function insertStory(story: typeof storiesTable.$inferInsert) {
   return await db.insert(storiesTable).values(story);
+}
+
+let lastCronRunId = 0;
+
+export async function newCronRun() {
+  const result = await db.insert(cronRunsTable).values({});
+  return result.lastInsertRowid as bigint;
+}
+
+export async function getCronRunId() {
+  if (lastCronRunId) {
+    return lastCronRunId;
+  }
+  lastCronRunId = Number(await newCronRun());
+  return lastCronRunId;
 }
 
 export async function getStories() {

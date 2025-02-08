@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import { ask } from "./ai";
 import {
   getAllDailySummaries,
+  getCronRunId,
   getDailySummariesFromDates,
   getFirstStoryDate,
   getLastStoryDate,
@@ -9,6 +10,7 @@ import {
   getStories,
   getStoriesFromDate,
   insertDailySummary,
+  insertSummary,
 } from "./db";
 import { storiesTable } from "./db/schema";
 
@@ -175,10 +177,13 @@ async function generateDaySummary(when: Date): Promise<boolean> {
       continue;
     }
 
-    await insertDailySummary({
+    await insertSummary({
       publishDate: when,
       title: lineNoIds,
       urlIds: ids.join(","),
+      generatedDate: new Date(),
+      daysIncluded: 1,
+      runId: await getCronRunId(),
     });
   }
   // console.log(stories[0]);
@@ -230,7 +235,20 @@ async function generateXDaysBackSummary(days: number) {
   const startDate = new Date(now);
   startDate.setDate(startDate.getDate() - days);
   const endDate = new Date(now);
-  return await generateMultiDaySummary(startDate, endDate);
+  const items = await generateMultiDaySummary(startDate, endDate);
+
+  for (const item of items) {
+    await insertSummary({
+      publishDate: startDate,
+      title: item.title,
+      urlIds: item.links.map((li) => li.id).join(","),
+      generatedDate: new Date(),
+      daysIncluded: days,
+      runId: await getCronRunId(),
+    });
+  }
+
+  return items;
 }
 
 interface NewsLink {
