@@ -15,15 +15,14 @@ jobs:
     # Specify runner +  build & upload the static files as an artifact
     runs-on: ubuntu-latest
     steps:
+      - name: install deps
+        id: install
+        run: npx pnpm install
+
       - name: Build static files
         id: build
-        run: |
-          # <Not provided for brevity>
-          # At a minimum this step should build the static files of your site
-          # <Not provided for brevity>
-          pnpm install
-          cd front
-          npm run build
+        working-directory: front
+        run: npm run build
 
       - name: Upload static files as artifact
         id: deployment
