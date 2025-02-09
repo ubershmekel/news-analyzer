@@ -15,9 +15,11 @@ jobs:
     # Specify runner +  build & upload the static files as an artifact
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Debug print
         id: debug
-        run: echo $pwd
+        run: ls -la
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3 # docs https://pnpm.io/continuous-integration#github-actions
