@@ -20,9 +20,9 @@ async function uploadFile(
       destination: fileName,
       // resumable: true,
       // gzip: true, // Compress file
-      // metadata: {
-      //   cacheControl: 'public, max-age=31536000',
-      // },
+      metadata: {
+        cacheControl: "public, max-age=60",
+      },
     });
 
     console.log(`File ${filePath} uploaded to ${bucketName} as ${fileName}`);
@@ -35,12 +35,12 @@ async function uploadFile(
 // const bucketName = "your-bucket-name";
 // const localFilePath = "./example.txt"; // Path to the file
 // uploadFile(bucketName, localFilePath);
-async function main() {
+export async function uploadNewsJson() {
   const bucketName = "uberbuck/";
   const localFilePath = "./data/news.json"; // Path to the file
   await uploadFile(bucketName, localFilePath, "news-analyzer/news.json");
 }
 
 if (require.main === module) {
-  main();
+  uploadNewsJson();
 }

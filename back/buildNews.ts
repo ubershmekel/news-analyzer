@@ -5,6 +5,7 @@ import {
   generateFrontPageSummaries,
   generateDayTodayAndYesterday,
 } from "./summarizer";
+import { uploadNewsJson } from "./gcpUpload";
 
 const writeJsonFile = async (filePath: string, data: object): Promise<void> => {
   // const jsonString = JSON.stringify(data, null, 2); // Pretty print with 2 spaces
@@ -16,17 +17,22 @@ const writeJsonFile = async (filePath: string, data: object): Promise<void> => {
 async function main() {
   console.log("readRss");
   await readRss();
+
   console.log("deleteDuplicateStories");
   await deleteDuplicateStories();
+
   console.log("generateDayTodayAndYesterday");
   await generateDayTodayAndYesterday();
+
   console.log("generateFrontPageSummaires");
   const payload = await generateFrontPageSummaries();
-  // save to json file
+
   console.log("writeJsonFile");
   const outPath = "./data/news.json";
   await writeJsonFile(outPath, payload);
-  // todo: upload new news to bucket
+
+  console.log("uploadNewsJson");
+  await uploadNewsJson();
 }
 
 if (require.main === module) {

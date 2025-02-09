@@ -18,7 +18,7 @@ const data = ref<FrontPageSummaries>({
   ]
 });
 
-const newsJsonUrl = "https://storage.googleapis.com/uberbuck/news-analyzer/news.json"
+const newsJsonUrl = "https://storage.googleapis.com/uberbuck/news-analyzer/news.json?cachebust=1"
 
 onMounted(async () => {
   const response = await fetch(newsJsonUrl)
