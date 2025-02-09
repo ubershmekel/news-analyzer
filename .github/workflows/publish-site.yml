@@ -18,9 +18,9 @@ jobs:
       # Get the code, the directory is empty without a checkout
       - uses: actions/checkout@v4
 
-      - name: Debug print
-        id: debug
-        run: ls -la
+      # - name: Debug print
+      #   id: debug
+      #   run: ls -la
 
       - name: Setup pnpm
         id: pnpm
