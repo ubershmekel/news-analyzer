@@ -33,6 +33,10 @@ const activeSummaryId = ref(0);
 <template>
   <div>
     <h1>News Since When</h1>
+    <p class="tagline">News sites refresh faster than I visit them. I made this page to keep up by clicking
+      the button for how long I haven't read any news. Source on <a
+        href="https://github.com/ubershmekel/news-analyzer">github</a>
+    </p>
     <div>
       <button v-for="(summary, index) in data.summaries" :key="summary.name" @click="activeSummaryId = index"
         :class="{ active: activeSummaryId === index }">{{
@@ -58,6 +62,8 @@ const activeSummaryId = ref(0);
 <style>
 h1 {
   font-size: 2.5rem;
+  margin-bottom: 0;
+  line-height: 0.95;
 }
 
 p {
@@ -77,5 +83,11 @@ button.active {
 
 .links-list a:hover {
   text-decoration: underline;
+}
+
+.tagline {
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 2rem;
 }
 </style>
