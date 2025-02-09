@@ -2,7 +2,7 @@
 import type { FrontPageSummaries } from "@news-analyzer/shared/serverTypes";
 import { onMounted, ref } from 'vue';
 
-let data: FrontPageSummaries = {
+const data = ref<FrontPageSummaries>({
   "createdAt": "2025-02-08T07:59:45.758Z",
   "summaries": [
     {
@@ -16,14 +16,14 @@ let data: FrontPageSummaries = {
       "items": [],
     }
   ]
-}
+});
 
 const newsJsonUrl = "https://storage.googleapis.com/uberbuck/news-analyzer/news.json"
 
 onMounted(async () => {
   const response = await fetch(newsJsonUrl)
   const newsData = await response.json()
-  data = newsData
+  data.value = newsData
   console.log("fetched news data", data)
 })
 const activeSummaryId = ref(0);
@@ -44,8 +44,9 @@ const activeSummaryId = ref(0);
         <li v-for="item in data.summaries[activeSummaryId].items" :key="item.title">
           <p>{{ item.title }}
             <span class="links-list">
-              (<a v-for="(link, linkIndex) in item.links" :key="linkIndex" :href="link.url"><span
-                  v-if="linkIndex != 0">, </span>{{ linkIndex + 1 }}</a>)
+              (<span class="news-link" v-for="(link, linkIndex) in item.links" :key="linkIndex">
+                <span v-if="linkIndex != 0">, </span><a :href="link.url">{{ linkIndex + 1 }}</a>
+              </span>)
             </span>
           </p>
         </li>
@@ -72,5 +73,9 @@ button.active {
 .links-list a {
   text-decoration: none;
   color: #efefef;
+}
+
+.links-list a:hover {
+  text-decoration: underline;
 }
 </style>
