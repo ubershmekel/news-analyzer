@@ -21,7 +21,7 @@ jobs:
           # <Not provided for brevity>
           # At a minimum this step should build the static files of your site
           # <Not provided for brevity>
-          npx pnpm install
+          pnpm install
           cd front
           npm run build
 
