@@ -326,27 +326,24 @@ async function parseMultiDaySummary(answer: string) {
       console.log(`Skipping empty line`);
       continue;
     }
-    const urlParts: string[] = [];
-    // const ids = summary.urlIds.split(",").map((id) => parseInt(id));
     const seenUrls: Set<string> = new Set();
-    for (const id of ids) {
+    const uniqueIds = [...new Set(ids)].sort();
+    const links: NewsLink[] = [];
+    for (const id of uniqueIds) {
       const url = linkIdToUrl[id];
       if (seenUrls.has(url)) {
         continue;
       }
       seenUrls.add(url);
-      urlParts.push(`[${id}](${url})`);
+      const link: NewsLink = {
+        id: parseInt(id),
+        url: linkIdToUrl[id],
+      };
+      links.push(link);
     }
-    const sortedUrls = [...ids].sort();
     const newsItem: NewsItem = {
       title: lineNoIds,
-      links: sortedUrls.map((id) => {
-        const link: NewsLink = {
-          id: parseInt(id),
-          url: linkIdToUrl[id],
-        };
-        return link;
-      }),
+      links,
     };
     out.push(newsItem);
   }
