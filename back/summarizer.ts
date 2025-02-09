@@ -81,7 +81,10 @@ function splitStoryIds(line: string) {
   if (match) {
     res.ids = match[1].split(",").map((id) => id.trim());
     const lineNoIds = line.replace(match[0], "");
-    const cleanLine = lineNoIds.replace(/^\d+\)\s+/, "").trim();
+    // remove leading number and space
+    let cleanLine = lineNoIds.replace(/^\d+\)\s+/, "").trim();
+    // remove trailing space and periods
+    cleanLine = cleanLine.replace(/\s+\.$/, "");
     res.lineNoIds = cleanLine;
   }
   return res;
@@ -300,7 +303,7 @@ const summarySpans: SpanSummary[] = [
   },
 ];
 
-export async function generateFrontPageSummaires() {
+export async function generateFrontPageSummaries() {
   const out: FrontPageSummaries = {
     createdAt: new Date().toISOString(),
     summaries: [],

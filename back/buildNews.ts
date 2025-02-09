@@ -2,7 +2,7 @@ import { writeFile } from "fs/promises";
 import { deleteDuplicateStories } from "./db";
 import { readRss } from "./readRss";
 import {
-  generateFrontPageSummaires,
+  generateFrontPageSummaries,
   generateDayTodayAndYesterday,
 } from "./summarizer";
 
@@ -21,7 +21,7 @@ async function main() {
   console.log("generateDayTodayAndYesterday");
   await generateDayTodayAndYesterday();
   console.log("generateFrontPageSummaires");
-  const payload = await generateFrontPageSummaires();
+  const payload = await generateFrontPageSummaries();
   // save to json file
   console.log("writeJsonFile");
   const outPath = "./data/news.json";
