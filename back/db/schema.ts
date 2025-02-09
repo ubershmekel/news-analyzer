@@ -10,12 +10,12 @@ export const storiesTable = sqliteTable("stories", {
   crawlDate: int({ mode: "timestamp" }).notNull(),
 });
 
-export const dailySummariesTable = sqliteTable("daily_summaries", {
-  id: int().primaryKey({ autoIncrement: true }),
-  title: text().notNull(),
-  urlIds: text().notNull(),
-  publishDate: int({ mode: "timestamp" }).notNull().default(new Date()),
-});
+// export const dailySummariesTable = sqliteTable("daily_summaries", {
+//   id: int().primaryKey({ autoIncrement: true }),
+//   title: text().notNull(),
+//   urlIds: text().notNull(),
+//   publishDate: int({ mode: "timestamp" }).notNull().default(new Date()),
+// });
 
 export const cronRunsTable = sqliteTable("cron_runs", {
   id: int().primaryKey({ autoIncrement: true }),

@@ -1,15 +1,20 @@
 import { promises as fs } from "fs";
 import { ask } from "./ai";
 import {
-  getAllDailySummaries,
+  summarySpans,
+  type FrontPageSummaries,
+  type NewsItem,
+  type NewsLink,
+  type SpanSummary,
+} from "@news-analyzer/shared/serverTypes";
+import {
   getCronRunId,
-  getDailySummariesFromDates,
+  getSummariesFromDates,
   getFirstStoryDate,
   getLastStoryDate,
   getLinkIdsToUrls,
   getStories,
   getStoriesFromDate,
-  insertDailySummary,
   insertSummary,
 } from "./db";
 import { storiesTable } from "./db/schema";
@@ -197,7 +202,7 @@ async function generateDaySummary(when: Date): Promise<boolean> {
 
 async function markdownDailySummaries(startDate: Date, endDate: Date) {
   // const summaries = await getAllDailySummaries();
-  const summaries = await getDailySummariesFromDates(startDate, endDate);
+  const summaries = await getSummariesFromDates(startDate, endDate);
 
   // console.log(summaries);
   const allLinkIds: number[] = [];
@@ -254,55 +259,6 @@ async function generateXDaysBackSummary(days: number) {
   return items;
 }
 
-interface NewsLink {
-  id: number;
-  url: string;
-}
-
-interface NewsItem {
-  title: string;
-  links: NewsLink[];
-}
-
-interface SpanSummary {
-  daysBack: number;
-  name: string;
-  items: NewsItem[];
-}
-
-interface FrontPageSummaries {
-  createdAt: string;
-  summaries: SpanSummary[];
-}
-
-const summarySpans: SpanSummary[] = [
-  {
-    daysBack: 1,
-    name: "Today",
-    items: [],
-  },
-  {
-    daysBack: 3,
-    name: "3 days",
-    items: [],
-  },
-  {
-    daysBack: 7,
-    name: "7 days",
-    items: [],
-  },
-  {
-    daysBack: 14,
-    name: "14 days",
-    items: [],
-  },
-  {
-    daysBack: 30,
-    name: "30 days",
-    items: [],
-  },
-];
-
 export async function generateFrontPageSummaries() {
   const out: FrontPageSummaries = {
     createdAt: new Date().toISOString(),
@@ -323,7 +279,7 @@ export async function generateFrontPageSummaries() {
 
 async function generateMultiDaySummary(startDate: Date, endDate: Date) {
   console.log(`Summarizing from ${startDate} to ${endDate}`);
-  const summaries = await getDailySummariesFromDates(startDate, endDate);
+  const summaries = await getSummariesFromDates(startDate, endDate);
   const questionLines: string[] = [summarizeDailySummariesPrompt];
   if (summaries.length === 0) {
     console.log(`No summaries from ${startDate} to ${endDate}`);
