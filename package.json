@@ -1,0 +1,14 @@
+{
+  "name": "news-analyzer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "pnpm-build": "pnpm install"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "pnpm": "^10.2.1"
+  }
+}

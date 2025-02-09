@@ -1,11 +1,6 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { dbFileName } from "./drizzle.config";
-import {
-  cronRunsTable,
-  dailySummariesTable,
-  storiesTable,
-  summariesTable,
-} from "./db/schema";
+import { cronRunsTable, storiesTable, summariesTable } from "./db/schema";
 import { and, gte, lt, inArray, desc, sql } from "drizzle-orm";
 
 const db = drizzle(dbFileName);
@@ -44,21 +39,21 @@ export async function getFirstStoryDate() {
   return story[0]?.publishDate;
 }
 
-export async function getAllDailySummaries() {
-  return await db.select().from(dailySummariesTable);
-}
+// export async function getAllDailySummaries() {
+//   return await db.select().from(dailySummariesTable);
+// }
 
-export async function getDailySummariesFromDates(fromDate: Date, toDate: Date) {
+export async function getSummariesFromDates(fromDate: Date, toDate: Date) {
   const startDateStart = new Date(fromDate.setHours(0, 0, 0, 0));
   const endOfDayEnd = new Date(toDate.setHours(23, 59, 59, 999));
 
   return await db
     .select()
-    .from(dailySummariesTable)
+    .from(summariesTable)
     .where(
       and(
-        gte(dailySummariesTable.publishDate, startDateStart),
-        lt(dailySummariesTable.publishDate, endOfDayEnd)
+        gte(summariesTable.publishDate, startDateStart),
+        lt(summariesTable.publishDate, endOfDayEnd)
       )
     );
 }
@@ -69,11 +64,11 @@ export async function insertSummary(
   return await db.insert(summariesTable).values(summary);
 }
 
-export async function insertDailySummary(
-  summary: typeof dailySummariesTable.$inferInsert
-) {
-  return await db.insert(dailySummariesTable).values(summary);
-}
+// export async function insertDailySummary(
+//   summary: typeof dailySummariesTable.$inferInsert
+// ) {
+//   return await db.insert(dailySummariesTable).values(summary);
+// }
 
 export async function insertStory(story: typeof storiesTable.$inferInsert) {
   return await db.insert(storiesTable).values(story);

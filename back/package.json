@@ -1,11 +1,12 @@
 {
-  "name": "news-analyzer",
+  "name": "@news-analyzer/back",
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
     "ai": "tsx ai.ts",
     "buildNews": "tsx buildNews.ts",
     "db": "tsx db.ts",
+    "gcpUpload": "tsx gcpUpload.ts",
     "howManyStoriesPerDay": "tsx howManyStoriesPerDay.ts",
     "pushDb": "drizzle-kit push",
     "readRss": "tsx readRss.ts",
@@ -15,10 +16,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google-cloud/storage": "^7.15.0",
     "@libsql/client": "^0.14.0",
     "drizzle-orm": "^0.39.0",
     "openai": "^4.80.1",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "@news-analyzer/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.12.0",

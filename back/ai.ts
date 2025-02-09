@@ -7,7 +7,9 @@ const isDeepSeek = false;
 const openai = new OpenAI({
   // apiKey: secrets.OPENAI_API_KEY,
   apiKey: isDeepSeek ? secrets.DEEPSEEK_API_KEY : secrets.OPENAI_API_KEY,
-  baseURL: isDeepSeek ? "https://api.deepseek.com" : "https://api.openai.com",
+  baseURL: isDeepSeek
+    ? "https://api.deepseek.com"
+    : "https://api.openai.com/v1",
 });
 
 // UnprocessableEntityError: 422 Failed to deserialize the JSON body into the target type: messages[0].role:

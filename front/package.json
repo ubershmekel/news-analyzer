@@ -1,5 +1,5 @@
 {
-  "name": "front",
+  "name": "@news-analyzer/front",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "@news-analyzer/shared": "workspace:*"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
