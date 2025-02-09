@@ -89,7 +89,7 @@ function splitStoryIds(line: string) {
     // remove leading number and space
     let cleanLine = lineNoIds.replace(/^\d+\)\s+/, "").trim();
     // remove trailing space and periods
-    cleanLine = cleanLine.replace(/\s+\.$/, "");
+    cleanLine = cleanLine.replace(/[\s\.]+$/, "");
     res.lineNoIds = cleanLine;
   }
   return res;
@@ -399,8 +399,10 @@ async function main() {
   const now = new Date();
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
-  // await generateMultiDaySummary(yesterday, now);
-  await markdownDailySummaries(yesterday, now);
+  const out = await generateMultiDaySummary(yesterday, now);
+  console.log(out);
+
+  // await markdownDailySummaries(yesterday, now);
   // const startDate = new Date("2025-01-25");
 
   // await summarizeTodayAndYesterday();
