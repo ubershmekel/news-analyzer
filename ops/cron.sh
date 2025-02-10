@@ -8,6 +8,9 @@
 #   4. Appends all output to the specified log file
 #
 
+# Get the paths, otherwise pnpm is not found
+source ~/.bashrc
+
 # Where your log file is stored:
 ROOT="/home/ubershmekel/news-analyzer"
 LOG_FILE="$ROOT/back/data/cron.log"
