@@ -20,7 +20,7 @@ const apiData = {
   },
 };
 
-const activeApi = apiData.huggFace;
+const activeApi = apiData[secrets.ACTIVE_API];
 
 const client = new OpenAI({
   // apiKey: secrets.OPENAI_API_KEY,
