@@ -35,10 +35,11 @@ const activeSummaryId = ref(0);
   <div>
     <h1>News Since When</h1>
     <p class="tagline">News sites refresh faster than I visit them. I made this page to keep up by clicking
-      the button for how long I haven't read any news. Source on <a
-        href="https://github.com/ubershmekel/news-analyzer">github</a>. Refreshed <span :title="data.createdAt">{{
-          timeSince(data.createdAt)
-        }}</span>.
+      the button for how long I haven't read any news. The data comes from the US and world news feeds of NYTimes, BBC,
+      and Fox news. See source on
+      <a href="https://github.com/ubershmekel/news-analyzer">github</a>. Refreshed <span :title="data.createdAt">{{
+        timeSince(data.createdAt)
+      }}</span>.
     </p>
     <div>
       <button v-for="(summary, index) in data.summaries" :key="summary.name" @click="activeSummaryId = index"
