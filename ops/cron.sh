@@ -7,29 +7,26 @@
 #   3. Runs `pnpm run buildNews`
 #   4. Appends all output to the specified log file
 #
-echo "===== Starting cron.sh at $(date) =====" >> "$LOG_FILE" 2>&1
-echo "===== User is $(whoami) =====" >> "$LOG_FILE" 2>&1
 
-# Get the paths, otherwise pnpm is not found
-source /home/ubershmekel/.bashrc
+ROOT="/home/ubershmekel/news-analyzer/back/"
+PNPM="/home/ubershmekel/.local/share/pnpm/pnpm"
 
-# Where your log file is stored:
-ROOT="/home/ubershmekel/news-analyzer"
-LOG_FILE="$ROOT/back/data/cron.log"
+echo "===== Starting cron.sh at $(date) ====="
+echo "===== User is $(whoami) ====="
 
 # Go to the project directory
-cd $ROOT/back || {
-  echo "Failed to cd into $ROOT/back" >> "$LOG_FILE" 2>&1
+cd $ROOT || {
+  echo "Failed to cd into $ROOT"
   exit 1
 }
 
 # Pull the latest changes from git
-echo "===== Starting git pull at $(date) =====" >> "$LOG_FILE" 2>&1
-git pull >> "$LOG_FILE" 2>&1
+echo "===== Starting git pull at $(date) ====="
+git pull
 
 # Run the build script using pnpm
-echo "===== Starting pnpm run buildNews at $(date) =====" >> "$LOG_FILE" 2>&1
-pnpm run buildNews >> "$LOG_FILE" 2>&1
+echo "===== Starting pnpm run buildNews at $(date) ====="
+$PNPM run buildNews
 
 # Final log message
-echo "===== Finished build at $(date) =====" >> "$LOG_FILE" 2>&1
+echo "===== Finished build at $(date) ====="
