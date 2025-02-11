@@ -13,7 +13,9 @@ ROOT="/home/ubershmekel/news-analyzer/back/"
 # At first `pnpm` wasn't found, then `node` wasn't found.
 # So I'm just throwing the entire `echo $PATH` in here.
 # export PATH=/home/ubershmekel/.local/share/pnpm:/run/user/1000/fnm_multishells/8891_1739255640602/bin:/home/ubershmekel/.local/share/fnm:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+source /home/ubershmekel/.profile
 source /home/ubershmekel/.bashrc
+source /home/ubershmekel/myenv.txt
 export -p
 
 echo "===== Starting cron.sh at $(date) ====="
