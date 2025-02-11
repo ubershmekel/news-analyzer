@@ -9,7 +9,10 @@
 #
 
 ROOT="/home/ubershmekel/news-analyzer/back/"
-PNPM="/home/ubershmekel/.local/share/pnpm/pnpm"
+
+# At first `pnpm` wasn't found, then `node` wasn't found.
+# So I'm just throwing the entire `echo $PATH` in here.
+PATH=/home/ubershmekel/.local/share/pnpm:/run/user/1000/fnm_multishells/8891_1739255640602/bin:/home/ubershmekel/.local/share/fnm:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
 
 echo "===== Starting cron.sh at $(date) ====="
 echo "===== User is $(whoami) ====="
@@ -26,7 +29,7 @@ git pull
 
 # Run the build script using pnpm
 echo "===== Starting pnpm run buildNews at $(date) ====="
-$PNPM run buildNews
+pnpm run buildNews
 
 # Final log message
 echo "===== Finished build at $(date) ====="
