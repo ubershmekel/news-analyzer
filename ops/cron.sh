@@ -7,9 +7,11 @@
 #   3. Runs `pnpm run buildNews`
 #   4. Appends all output to the specified log file
 #
+echo "===== Starting cron.sh at $(date) =====" >> "$LOG_FILE" 2>&1
+echo "===== User is $(whoami) =====" >> "$LOG_FILE" 2>&1
 
 # Get the paths, otherwise pnpm is not found
-source ~/.bashrc
+source /home/ubershmekel/.bashrc
 
 # Where your log file is stored:
 ROOT="/home/ubershmekel/news-analyzer"
