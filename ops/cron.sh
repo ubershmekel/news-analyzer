@@ -18,6 +18,8 @@ source /home/ubershmekel/.bashrc
 source /home/ubershmekel/myenv.txt
 export -p
 
+echo "===== PATH is $PATH ====="
+
 echo "===== Starting cron.sh at $(date) ====="
 echo "===== User is $(whoami) ====="
 
