@@ -239,11 +239,8 @@ async function summarizeAll() {
 }
 
 async function generateXDaysBackSummary(days: number) {
-  const now = new Date();
-  const startDate = new Date(now);
-  startDate.setDate(startDate.getDate() - days);
-  const endDate = new Date(now);
-  const items = await generateMultiDaySummary(startDate, endDate);
+  const startDate = new Date();
+  const items = await generateMultiDaySummary(days);
 
   for (const item of items) {
     await insertSummary({
@@ -277,7 +274,10 @@ export async function generateFrontPageSummaries(): Promise<FrontPageSummaries> 
   return out;
 }
 
-async function generateMultiDaySummary(startDate: Date, endDate: Date) {
+async function generateMultiDaySummary(daysBack: number) {
+  const endDate = new Date();
+  const startDate = new Date(endDate);
+  startDate.setDate(startDate.getDate() - daysBack);
   console.log(`Summarizing from ${startDate} to ${endDate}`);
   const summaries = await getSummariesFromDates(startDate, endDate);
   const questionLines: string[] = [summarizeDailySummariesPrompt];
@@ -290,6 +290,7 @@ async function generateMultiDaySummary(startDate: Date, endDate: Date) {
     questionLines.push(`${formattedDate} ${summary.title} (${summary.urlIds})`);
   }
   const textQuestion = questionLines.join("\n");
+  await fs.writeFile(`./data/question-${daysBack}.txt`, textQuestion, "utf8");
   console.log(`Summarizing ${summaries.length} summaries`);
   console.log(`Asking: ${textQuestion.length} character long question`);
   const result = await ask(textQuestion);

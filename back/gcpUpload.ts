@@ -1,4 +1,5 @@
 import { Storage } from "@google-cloud/storage";
+import { summarySpans } from "@news-analyzer/shared";
 import path from "path";
 
 // Initialize storage client
@@ -39,6 +40,10 @@ export async function uploadNewsJson() {
   const bucketName = "uberbuck/";
   const localFilePath = "./data/news.json"; // Path to the file
   await uploadFile(bucketName, localFilePath, "news-analyzer/news.json");
+  for (const span of summarySpans) {
+    const fname = `question-${span.daysBack}.txt`;
+    await uploadFile(bucketName, `./data/` + fname, "news-analyzer/" + fname);
+  }
 }
 
 if (require.main === module) {
