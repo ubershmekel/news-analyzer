@@ -259,7 +259,7 @@ async function generateXDaysBackSummary(days: number) {
   return items;
 }
 
-export async function generateFrontPageSummaries() {
+export async function generateFrontPageSummaries(): Promise<FrontPageSummaries> {
   const out: FrontPageSummaries = {
     createdAt: new Date().toISOString(),
     summaries: [],

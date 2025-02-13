@@ -13,10 +13,14 @@ ROOT="/home/ubershmekel/news-analyzer/back/"
 # At first `pnpm` wasn't found, then `node` wasn't found.
 # So I'm just throwing the entire `echo $PATH` in here.
 # export PATH=/home/ubershmekel/.local/share/pnpm:/run/user/1000/fnm_multishells/8891_1739255640602/bin:/home/ubershmekel/.local/share/fnm:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
-source /home/ubershmekel/.profile
-source /home/ubershmekel/.bashrc
-source /home/ubershmekel/myenv.txt
+# source /home/ubershmekel/.profile
+# source /home/ubershmekel/.bashrc
+# source /home/ubershmekel/myenv.txt
+# export -p
+
+export PATH=/run/user/1000/fnm_multishells/246757_1739429827138/bin:/home/ubershmekel/.local/share/pnpm:/run/user/1000/fnm_multishells/172411_1739374659581/bin:/home/ubershmekel/.local/share/fnm:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
 export -p
+
 
 echo "===== PATH is $PATH ====="
 
@@ -35,7 +39,7 @@ git pull
 
 # Run the build script using pnpm
 echo "===== Starting pnpm run buildNews at $(date) ====="
-pnpm run buildNews
+npm run buildNews
 
 # Final log message
 echo "===== Finished build at $(date) ====="
