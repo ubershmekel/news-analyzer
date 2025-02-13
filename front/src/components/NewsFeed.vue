@@ -19,7 +19,8 @@ const data = ref<FrontPageSummaries>({
   ]
 });
 
-const newsJsonUrl = "https://storage.googleapis.com/uberbuck/news-analyzer/news.json?cachebust=1"
+const bucketUrl = "https://storage.googleapis.com/uberbuck/news-analyzer/"
+const newsJsonUrl = bucketUrl + "news.json"
 
 onMounted(async () => {
   const response = await fetch(newsJsonUrl)
@@ -61,6 +62,9 @@ const activeSummaryId = ref(0);
       </ul>
     </div>
   </div>
+  <p>
+    <a :href="bucketUrl + 'question-' + data.summaries[activeSummaryId].daysBack + '.txt'">debug</a>
+  </p>
 </template>
 
 <style>
