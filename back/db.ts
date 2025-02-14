@@ -58,6 +58,48 @@ export async function getSummariesFromDates(fromDate: Date, toDate: Date) {
     );
 }
 
+export async function getUniqueSummariesFromDates(
+  fromDate: Date,
+  toDate: Date
+) {
+  // If a date has multiple runIds, only get the one with the highest runId.
+  const startDateStart = new Date(fromDate.setHours(0, 0, 0, 0));
+  const endOfDayEnd = new Date(toDate.setHours(23, 59, 59, 999));
+
+  const getSummariesQuery = sql`
+WITH max_run_ids AS (
+  SELECT
+    DATE(publishDate, 'unixepoch') AS the_date,
+    MAX(runId) AS max_r
+  FROM
+    summaries
+  WHERE
+    daysIncluded = 1
+    AND publishDate >= ${startDateStart.getTime() / 1000}
+    AND publishDate <= ${endOfDayEnd.getTime() / 1000}
+  GROUP BY
+    the_date
+),
+unique_summaries AS (
+  SELECT
+    summaries.*
+  FROM
+    summaries
+  INNER JOIN max_run_ids ON
+    runId = max_r
+    AND DATE(summaries.publishDate, 'unixepoch') = the_date
+)
+SELECT
+  *
+FROM
+  unique_summaries
+ORDER BY
+  publishDate ASC`;
+
+  const result = await db.run(getSummariesQuery);
+  return result.rows as any as (typeof summariesTable.$inferSelect)[];
+}
+
 export async function insertSummary(
   summary: typeof summariesTable.$inferInsert
 ) {
@@ -145,13 +187,19 @@ async function main() {
 
   //   const stories = await db.select().from(storiesTable);
   //   console.log(stories);
-  const when = "2025-01-29";
-  const stories = await getStoriesFromDate(new Date(when));
-  console.log(`Stories from ${when}: ${stories.length}`);
-  console.log(stories[0]);
-  console.log(stories[1]);
-  console.log(stories[2]);
-  await deleteDuplicateStories();
+  // const when = "2025-01-29";
+  // const stories = await getStoriesFromDate(new Date(when));
+  // console.log(`Stories from ${when}: ${stories.length}`);
+  // console.log(stories[0]);
+  // console.log(stories[1]);
+  // console.log(stories[2]);
+  // await deleteDuplicateStories();
+
+  const summaries = await getUniqueSummariesFromDates(
+    new Date("2025-01-21"),
+    new Date("2025-02-09")
+  );
+  console.log(summaries.length);
 }
 
 if (require.main === module) {

@@ -16,6 +16,7 @@ import {
   getStories,
   getStoriesFromDate,
   insertSummary,
+  getUniqueSummariesFromDates,
 } from "./db";
 import { storiesTable } from "./db/schema";
 
@@ -279,7 +280,7 @@ async function generateMultiDaySummary(daysBack: number) {
   const startDate = new Date(endDate);
   startDate.setDate(startDate.getDate() - daysBack);
   console.log(`Summarizing from ${startDate} to ${endDate}`);
-  const summaries = await getSummariesFromDates(startDate, endDate);
+  const summaries = await getUniqueSummariesFromDates(startDate, endDate);
   const questionLines: string[] = [summarizeDailySummariesPrompt];
   if (summaries.length === 0) {
     console.log(`No summaries from ${startDate} to ${endDate}`);
