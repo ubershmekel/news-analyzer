@@ -2,7 +2,6 @@ import { drizzle } from "drizzle-orm/libsql";
 import { dbFileName } from "./drizzle.config";
 import { cronRunsTable, storiesTable, summariesTable } from "./db/schema";
 import { and, gte, lt, inArray, desc, sql, Table } from "drizzle-orm";
-import { DBResult } from "drizzle-orm/sqlite-core";
 
 const db = drizzle(dbFileName);
 

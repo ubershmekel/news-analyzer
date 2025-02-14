@@ -5,6 +5,7 @@
   "scripts": {
     "ai": "tsx ai.ts",
     "buildNews": "tsx buildNews.ts",
+    "checkTypes": "tsc --noEmit",
     "db": "tsx db.ts",
     "gcpUpload": "tsx gcpUpload.ts",
     "howManyStoriesPerDay": "tsx howManyStoriesPerDay.ts",
@@ -21,7 +22,8 @@
     "@news-analyzer/shared": "workspace:*",
     "drizzle-orm": "^0.39.0",
     "openai": "^4.80.1",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "typescript": "~5.7.3"
   },
   "devDependencies": {
     "@types/node": "^22.13.1",

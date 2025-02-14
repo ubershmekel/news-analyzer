@@ -24,10 +24,10 @@ export const cronRunsTable = sqliteTable("cron_runs", {
 
 export const summariesTable = sqliteTable("summaries", {
   id: int().primaryKey({ autoIncrement: true }),
-  runId: int(),
+  runId: int().notNull(),
   title: text().notNull(),
   urlIds: text().notNull(),
   publishDate: int({ mode: "timestamp" }).notNull(),
   generatedDate: int({ mode: "timestamp" }).notNull(),
-  daysIncluded: int().notNull().default(1),
+  daysIncluded: int().notNull(),
 });

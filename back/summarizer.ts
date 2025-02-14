@@ -398,10 +398,7 @@ async function main() {
   // await summarizeDates();
   // await formatMultiDaySummary(exampleMultiDaySummary);
 
-  const now = new Date();
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const out = await generateMultiDaySummary(yesterday, now);
+  const out = await generateMultiDaySummary(2);
   console.log(out);
 
   // await markdownDailySummaries(yesterday, now);
