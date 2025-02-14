@@ -34,7 +34,7 @@ importers:
         version: 3.13.0
     devDependencies:
       '@types/node':
-        specifier: ^22.12.0
+        specifier: ^22.13.1
         version: 22.13.1
       drizzle-kit:
         specifier: ^0.30.3

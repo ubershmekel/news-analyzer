@@ -1,7 +1,8 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { dbFileName } from "./drizzle.config";
 import { cronRunsTable, storiesTable, summariesTable } from "./db/schema";
-import { and, gte, lt, inArray, desc, sql } from "drizzle-orm";
+import { and, gte, lt, inArray, desc, sql, Table } from "drizzle-orm";
+import { DBResult } from "drizzle-orm/sqlite-core";
 
 const db = drizzle(dbFileName);
 
@@ -97,7 +98,18 @@ ORDER BY
   publishDate ASC`;
 
   const result = await db.run(getSummariesQuery);
-  return result.rows as any as (typeof summariesTable.$inferSelect)[];
+  return mapDriverValues(summariesTable, result);
+}
+
+function mapDriverValues(table: Table, result: any) {
+  // https://github.com/drizzle-team/drizzle-orm/issues/1953
+  for (const row of result.rows) {
+    for (const colName of Object.keys(table)) {
+      const col = table[colName];
+      row[colName] = col.mapFromDriverValue(row[colName]) as any;
+    }
+  }
+  return result.rows as any as (typeof table.$inferSelect)[];
 }
 
 export async function insertSummary(
@@ -196,10 +208,13 @@ async function main() {
   // await deleteDuplicateStories();
 
   const summaries = await getUniqueSummariesFromDates(
+    // const summaries = await getSummariesFromDates(
     new Date("2025-01-21"),
     new Date("2025-02-09")
   );
   console.log(summaries.length);
+  console.log(summaries[0].publishDate);
+  console.log(summaries[0].publishDate.toISOString());
 }
 
 if (require.main === module) {
