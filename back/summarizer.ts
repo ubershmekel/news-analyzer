@@ -291,9 +291,12 @@ async function generateMultiDaySummary(daysBack: number) {
     questionLines.push(`${formattedDate} ${summary.title} (${summary.urlIds})`);
   }
   const textQuestion = questionLines.join("\n");
+
+  // log textQuestion for debug purposes
   await fs.writeFile(`./data/question-${daysBack}.txt`, textQuestion, "utf8");
   console.log(`Summarizing ${summaries.length} summaries`);
   console.log(`Asking: ${textQuestion.length} character long question`);
+
   const result = await ask(textQuestion);
   const answer = result.message.content;
   if (!answer) {
@@ -310,6 +313,8 @@ async function generateMultiDaySummary(daysBack: number) {
 async function parseMultiDaySummary(answer: string) {
   const out: NewsItem[] = [];
   const allLinkIds: number[] = [];
+
+  // Get all URL ids so that we can fetch all their URLs
   for (const line of answer.split("\n")) {
     const { lineNoIds, ids } = splitStoryIds(line);
     if (lineNoIds.length === 0) {
@@ -322,6 +327,7 @@ async function parseMultiDaySummary(answer: string) {
   }
   const linkIdToUrl = await getLinkIdsToUrls(allLinkIds);
 
+  // Parse the answer and create NewsItems
   for (const line of answer.split("\n")) {
     const { lineNoIds, ids } = splitStoryIds(line);
     if (lineNoIds.length === 0) {
@@ -333,6 +339,10 @@ async function parseMultiDaySummary(answer: string) {
     const links: NewsLink[] = [];
     for (const id of uniqueIds) {
       const url = linkIdToUrl[id];
+      if (!url) {
+        console.warn(`No URL for ${id}`);
+        continue;
+      }
       if (seenUrls.has(url)) {
         continue;
       }
