@@ -4,7 +4,7 @@ import type { FrontPageSummaries } from "@news-analyzer/shared/serverTypes";
 import { onMounted, ref } from 'vue';
 
 const data = ref<FrontPageSummaries>({
-  "createdAt": "2025-02-08T07:59:45.758Z",
+  "createdAt": "",
   "summaries": [
     {
       "daysBack": 1,
@@ -28,7 +28,7 @@ onMounted(async () => {
   data.value = newsData
   console.log("fetched news data", data)
 })
-const activeSummaryId = ref(0);
+const activeSummaryId = ref(1);
 
 </script>
 
@@ -38,9 +38,10 @@ const activeSummaryId = ref(0);
     <p class="tagline">News sites refresh faster than I visit them. I made this page to keep up by clicking
       the button for how long I haven't read any news. The data comes from the US and world news feeds of NYTimes, BBC,
       and Fox news. See source on
-      <a href="https://github.com/ubershmekel/news-analyzer">github</a>. Refreshed <span :title="data.createdAt">{{
-        timeSince(data.createdAt)
-      }}</span>.
+      <a href="https://github.com/ubershmekel/news-analyzer">github</a>. <span v-if="data.createdAt"
+        :title="data.createdAt">Refreshed {{
+          timeSince(data.createdAt)
+        }}</span>.
     </p>
     <div>
       <button v-for="(summary, index) in data.summaries" :key="summary.name" @click="activeSummaryId = index"
@@ -63,7 +64,7 @@ const activeSummaryId = ref(0);
     </div>
   </div>
   <p>
-    <a :href="bucketUrl + 'question-' + data.summaries[activeSummaryId].daysBack + '.txt'">debug</a>
+    <a class="debug-link" :href="bucketUrl + 'question-' + data.summaries[activeSummaryId].daysBack + '.txt'">debug</a>
   </p>
 </template>
 
@@ -97,5 +98,9 @@ button.active {
   font-size: 1rem;
   margin-top: 0;
   margin-bottom: 2rem;
+}
+
+.debug-link {
+  color: #efefef;
 }
 </style>
