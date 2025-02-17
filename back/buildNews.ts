@@ -1,5 +1,5 @@
 import { writeFile } from "fs/promises";
-import { deleteDuplicateStories } from "./db";
+import { deleteStoriesWithDupUrls } from "./db";
 import { readRss } from "./readRss";
 import {
   generateFrontPageSummaries,
@@ -18,8 +18,8 @@ async function main() {
   console.log("readRss");
   await readRss();
 
-  console.log("deleteDuplicateStories");
-  await deleteDuplicateStories();
+  console.log("deleteStoriesWithDupUrls");
+  await deleteStoriesWithDupUrls();
 
   console.log("generateDayTodayAndYesterday");
   await generateDayTodayAndYesterday();

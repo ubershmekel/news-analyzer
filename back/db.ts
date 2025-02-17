@@ -43,9 +43,24 @@ export async function getFirstStoryDate() {
 //   return await db.select().from(dailySummariesTable);
 // }
 
+function newDateSetHours(
+  date: Date,
+  hours: number,
+  min?: number,
+  sec?: number,
+  ms?: number
+): Date {
+  // There were bugs caused by code like `date.setHours(0, 0, 0, 0);`
+  // because that would change the original date object which was
+  // still in-use up the call stack.
+  const newDate = new Date(date);
+  newDate.setHours(hours, min ?? 0, sec ?? 0, ms ?? 0);
+  return date;
+}
+
 export async function getSummariesFromDates(fromDate: Date, toDate: Date) {
-  const startDateStart = new Date(fromDate.setHours(0, 0, 0, 0));
-  const endOfDayEnd = new Date(toDate.setHours(23, 59, 59, 999));
+  const startDateStart = newDateSetHours(fromDate, 0, 0, 0, 0);
+  const endOfDayEnd = newDateSetHours(toDate, 23, 59, 59, 999);
 
   return await db
     .select()
@@ -63,8 +78,8 @@ export async function getUniqueSummariesFromDates(
   toDate: Date
 ) {
   // If a date has multiple runIds, only get the one with the highest runId.
-  const startDateStart = new Date(fromDate.setHours(0, 0, 0, 0));
-  const endOfDayEnd = new Date(toDate.setHours(23, 59, 59, 999));
+  const startDateStart = newDateSetHours(fromDate, 0, 0, 0, 0);
+  const endOfDayEnd = newDateSetHours(toDate, 23, 59, 59, 999);
 
   const getSummariesQuery = sql`
 WITH max_run_ids AS (
@@ -146,7 +161,7 @@ export async function getStories() {
   return await db.select().from(storiesTable);
 }
 
-export async function deleteDuplicateStories() {
+export async function deleteStoriesWithDupUrls() {
   // Delete the stories that are not the first time this
   // URL showed up that CRAWL day.
   // If news outlets repeat this article on another day then that is
@@ -169,8 +184,8 @@ export async function deleteDuplicateStories() {
 }
 
 export async function getStoriesFromDate(when: Date) {
-  const startOfDay = new Date(when.setHours(0, 0, 0, 0));
-  const endOfDay = new Date(when.setHours(23, 59, 59, 999));
+  const startOfDay = newDateSetHours(when, 0, 0, 0, 0);
+  const endOfDay = newDateSetHours(when, 23, 59, 59, 999);
 
   return await db
     .select()
