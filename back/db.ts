@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { dbFileName } from "./drizzle.config";
 import { cronRunsTable, storiesTable, summariesTable } from "./db/schema";
-import { and, gte, lt, inArray, desc, sql, Table } from "drizzle-orm";
+import { and, gte, lt, inArray, desc, sql, Table, eq } from "drizzle-orm";
 
 const db = drizzle(dbFileName);
 
@@ -68,7 +68,8 @@ export async function getSummariesFromDates(fromDate: Date, toDate: Date) {
     .where(
       and(
         gte(summariesTable.publishDate, startDateStart),
-        lt(summariesTable.publishDate, endOfDayEnd)
+        lt(summariesTable.publishDate, endOfDayEnd),
+        eq(summariesTable.daysIncluded, 0)
       )
     );
 }
@@ -77,39 +78,28 @@ export async function getUniqueSummariesFromDates(
   fromDate: Date,
   toDate: Date
 ) {
-  // If a date has multiple runIds, only get the one with the highest runId.
   const startDateStart = newDateSetHours(fromDate, 0, 0, 0, 0);
   const endOfDayEnd = newDateSetHours(toDate, 23, 59, 59, 999);
 
+  // If a date has multiple rows, only get the 5 with the most recent generatedDate.
   const getSummariesQuery = sql`
-WITH max_run_ids AS (
-  SELECT
-    DATE(publishDate, 'unixepoch') AS the_date,
-    MAX(runId) AS max_r
-  FROM
-    summaries
+  WITH RankedRows AS (
+    SELECT 
+        *,
+        ROW_NUMBER() OVER (PARTITION BY publishDate ORDER BY generatedDate DESC) AS rn
+    FROM summaries
+    WHERE
+      daysIncluded = 0
+      AND publishDate >= ${startDateStart.getTime() / 1000}
+      AND publishDate <= ${endOfDayEnd.getTime() / 1000}
+  )
+  SELECT *
+  FROM RankedRows
   WHERE
-    daysIncluded = 1
-    AND publishDate >= ${startDateStart.getTime() / 1000}
-    AND publishDate <= ${endOfDayEnd.getTime() / 1000}
-  GROUP BY
-    the_date
-),
-unique_summaries AS (
-  SELECT
-    summaries.*
-  FROM
-    summaries
-  INNER JOIN max_run_ids ON
-    runId = max_r
-    AND DATE(summaries.publishDate, 'unixepoch') = the_date
-)
-SELECT
-  *
-FROM
-  unique_summaries
-ORDER BY
-  publishDate ASC`;
+    rn <= 5
+  ORDER BY publishDate ASC
+  ;
+`;
 
   const result = await db.run(getSummariesQuery);
   return mapDriverValues(summariesTable, result);

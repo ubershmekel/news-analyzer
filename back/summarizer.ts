@@ -191,7 +191,7 @@ async function generateDaySummary(when: Date): Promise<boolean> {
       title: lineNoIds,
       urlIds: ids.join(","),
       generatedDate: new Date(),
-      daysIncluded: 1,
+      daysIncluded: 0,
       runId: await getCronRunId(),
     });
   }
