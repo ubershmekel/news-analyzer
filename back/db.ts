@@ -86,7 +86,7 @@ export async function getUniqueSummariesFromDates(
   WITH RankedRows AS (
     SELECT 
         *,
-        ROW_NUMBER() OVER (PARTITION BY publishDate ORDER BY generatedDate DESC) AS rn
+        ROW_NUMBER() OVER (PARTITION BY DATE(publishDate, 'unixepoch') ORDER BY generatedDate DESC) AS rn
     FROM summaries
     WHERE
       daysIncluded = 0
