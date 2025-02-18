@@ -2,7 +2,13 @@ import OpenAI from "openai";
 
 import secrets from "./secrets.json";
 
-const apiData = {
+interface ApiData {
+  baseUrl: string;
+  model: string;
+  apiKey: string;
+}
+
+const apiData: { [key: string]: ApiData } = {
   openai: {
     baseUrl: "https://api.openai.com/v1",
     model: "gpt-4o",
@@ -17,6 +23,11 @@ const apiData = {
     baseUrl: "https://api.deepseek.com",
     model: "deepseek-chat",
     apiKey: secrets.DEEPSEEK_API_KEY,
+  },
+  openrouter: {
+    baseUrl: "https://openrouter.ai/api/v1",
+    model: "deepseek/deepseek-r1",
+    apiKey: secrets.OPENROUTER_API_KEY,
   },
 };
 
