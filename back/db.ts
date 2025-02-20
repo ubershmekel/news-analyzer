@@ -55,7 +55,7 @@ function newDateSetHours(
   // still in-use up the call stack.
   const newDate = new Date(date);
   newDate.setHours(hours, min ?? 0, sec ?? 0, ms ?? 0);
-  return date;
+  return newDate;
 }
 
 export async function getSummariesFromDates(fromDate: Date, toDate: Date) {
@@ -203,22 +203,22 @@ async function main() {
 
   //   const stories = await db.select().from(storiesTable);
   //   console.log(stories);
-  // const when = "2025-01-29";
-  // const stories = await getStoriesFromDate(new Date(when));
-  // console.log(`Stories from ${when}: ${stories.length}`);
-  // console.log(stories[0]);
-  // console.log(stories[1]);
+  const when = "2025-01-29";
+  const stories = await getStoriesFromDate(new Date(when));
+  console.log(`Stories from ${when}: ${stories.length}`);
+  console.log(stories[0]);
+  console.log(stories[1]);
   // console.log(stories[2]);
   // await deleteDuplicateStories();
 
-  const summaries = await getUniqueSummariesFromDates(
-    // const summaries = await getSummariesFromDates(
-    new Date("2025-01-21"),
-    new Date("2025-02-09")
-  );
-  console.log(summaries.length);
-  console.log(summaries[0].publishDate);
-  console.log(summaries[0].publishDate.toISOString());
+  // const summaries = await getUniqueSummariesFromDates(
+  //   // const summaries = await getSummariesFromDates(
+  //   new Date("2025-01-21"),
+  //   new Date("2025-02-09")
+  // );
+  // console.log(summaries.length);
+  // console.log(summaries[0].publishDate);
+  // console.log(summaries[0].publishDate.toISOString());
 }
 
 if (require.main === module) {
