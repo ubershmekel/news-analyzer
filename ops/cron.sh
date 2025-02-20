@@ -18,7 +18,7 @@ ROOT="/home/ubershmekel/news-analyzer/back/"
 # source /home/ubershmekel/myenv.txt
 # export -p
 
-export PATH=/run/user/1000/fnm_multishells/246757_1739429827138/bin:/home/ubershmekel/.local/share/pnpm:/run/user/1000/fnm_multishells/172411_1739374659581/bin:/home/ubershmekel/.local/share/fnm:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+export PATH=/home/ubershmekel/.nvm/versions/node/v22.14.0/bin:/home/ubershmekel/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
 export -p
 
 
@@ -39,7 +39,7 @@ git pull
 
 # Run the build script using pnpm
 echo "===== Starting pnpm run buildNews at $(date) ====="
-npm run buildNews
+pnpm run buildNews
 
 # Final log message
 echo "===== Finished build at $(date) ====="
