@@ -10,11 +10,6 @@ const data = ref<FrontPageSummaries>({
       "daysBack": 1,
       "name": "Today",
       "items": []
-    },
-    {
-      "daysBack": 3,
-      "name": "3 days",
-      "items": [],
     }
   ]
 });
@@ -27,8 +22,25 @@ onMounted(async () => {
   const newsData = await response.json()
   data.value = newsData
   console.log("fetched news data", data)
+  const initialHash = window.location.hash;
+  if (initialHash) {
+    console.log("initialHash", initialHash);
+    const daysBack = parseInt(initialHash.slice(1));
+    for (const [index, summary] of data.value.summaries.entries()) {
+      if (summary.daysBack === daysBack) {
+        activeSummaryId.value = index;
+      }
+    }
+  }
+
 })
-const activeSummaryId = ref(1);
+const activeSummaryId = ref(0);
+
+function onClickDaysBack(summaryIndex: number) {
+  activeSummaryId.value = summaryIndex;
+  const summary = data.value.summaries[summaryIndex];
+  window.location.hash = summary.daysBack.toString();
+}
 
 </script>
 
@@ -44,7 +56,7 @@ const activeSummaryId = ref(1);
         }}</span>.
     </p>
     <div>
-      <button v-for="(summary, index) in data.summaries" :key="summary.name" @click="activeSummaryId = index"
+      <button v-for="(summary, index) in data.summaries" :key="summary.name" @click="onClickDaysBack(index)"
         :class="{ active: activeSummaryId === index }">{{
           summary.name }}</button>
     </div>
