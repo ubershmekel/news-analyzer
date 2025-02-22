@@ -27,7 +27,8 @@ const apiData: { [key: string]: ApiData } = {
   openrouter: {
     baseUrl: "https://openrouter.ai/api/v1",
     // model: "deepseek/deepseek-r1", // too slow, like 110 seconds per response
-    model: "deepseek/deepseek-r1-distill-llama-70b",
+    // model: "deepseek/deepseek-r1-distill-llama-70b", // worked great, like 1¢ per run
+    model: "google/gemini-2.0-flash-001", // should be 0.5¢ per run
     apiKey: secrets.OPENROUTER_API_KEY,
   },
 };

@@ -20,15 +20,16 @@ import {
 } from "./db";
 import { storiesTable } from "./db/schema";
 
-const summarizeOneDayPrompt = `Please summarize the top 5 stories from the following list.
+const summarizeOneDayPrompt = `Please summarize the top 5 stories from the following list of input lines.
 You will output 5 lines.
 Each output line will be the most important, unique, impactful, or interesting story that you can summarize from the input list.
-Make sure the lines have no overlap, are not repetitive or redundant.
-Each line in the input list starts with a number story ID.
+Each output line should be unique with no overlap, not repetitive and not redundant.
 Each output line should start with the title, do not start with a numbering.
 Do not use any markdown or special characters in the output lines.
-Add at the end of each output line a list of up to 10 relevant story IDs separated by commas in parenthesis like (4, 15, 97) or (10, 29, 35, 421, 507)
-The input list is as follows:
+Each input line starts with a number story ID.
+Each output line should end with a list of up to 10 relevant story IDs separated by commas in parenthesis like (4, 15, 97) or (10, 29, 35, 421, 507)
+
+The input lines are:
 `;
 
 const summarizeDailySummariesPrompt = `Please summarize the top 5 stories from the following list.
@@ -38,10 +39,10 @@ You will output 5 lines.
 Each output line will be the most important, unique, impactful, or interesting story that you can summarize from the input list.
 If a story appeared on multiple days, then it's probably important.
 Each output line should be a rephrased summary, especially if the story appeared on multiple days.
-Each output line should NOT be "summary: full title" instead just write the title as a sentence.
-Each output line should start with the title, do not start with a numbering.
 Each output line should end with a list of up to 10 relevant story IDs separated by commas in parenthesis like (4, 15, 97) or (10, 29, 35, 421, 507)
 Each output line should have no overlap with others, and not be repetitive or redundant.
+Each output line should NOT start with a colon summary like "summary: full title" instead just write the full title as a sentence.
+Each output line should NOT start with a numbering like "2. ..." just start with the title.
 Do not use any markdown or special characters in the output lines.
 
 The input lines are:
