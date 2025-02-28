@@ -21,6 +21,7 @@ onMounted(async () => {
   const response = await fetch(newsJsonUrl)
   const newsData = await response.json()
   data.value = newsData
+  refreshTimeSince();
   console.log("fetched news data", data)
   const initialHash = window.location.hash;
   if (initialHash) {
@@ -42,6 +43,16 @@ function onClickDaysBack(summaryIndex: number) {
   window.location.hash = summary.daysBack.toString();
 }
 
+let timeSinceString = ref("");
+
+function refreshTimeSince() {
+  timeSinceString.value = timeSince(data.value.createdAt);
+};
+
+// 10 minutes in milliseconds
+const timeBetweenRefreshMs = 10 * 60 * 1000;
+setInterval(refreshTimeSince, timeBetweenRefreshMs);
+
 </script>
 
 <template>
@@ -51,9 +62,7 @@ function onClickDaysBack(summaryIndex: number) {
       the button for how long I haven't read any news. The data comes from the US and world news feeds of NYTimes, BBC,
       and Fox news. See source on
       <a href="https://github.com/ubershmekel/news-analyzer">github</a>. <span v-if="data.createdAt"
-        :title="data.createdAt">Refreshed {{
-          timeSince(data.createdAt)
-        }}</span>.
+        :title="data.createdAt">Refreshed {{ timeSinceString }}</span>.
     </p>
     <div>
       <button v-for="(summary, index) in data.summaries" :key="summary.name" @click="onClickDaysBack(index)"
