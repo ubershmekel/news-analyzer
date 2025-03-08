@@ -243,6 +243,11 @@ async function summarizeAll() {
 async function generateXDaysBackSummary(days: number) {
   const startDate = new Date();
   const items = await generateMultiDaySummary(days);
+  if (items.length === 0) {
+    console.log(`No items for ${days} days back`);
+    throw new Error(`No items ${days} days back`);
+    // return items;
+  }
 
   for (const item of items) {
     await insertSummary({
