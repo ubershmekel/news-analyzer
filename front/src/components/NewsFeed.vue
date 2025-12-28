@@ -32,6 +32,9 @@ onMounted(async () => {
         activeSummaryId.value = index;
       }
     }
+  } else {
+    // set default to 3 days of summary
+    activeSummaryId.value = 1;
   }
 
 })
